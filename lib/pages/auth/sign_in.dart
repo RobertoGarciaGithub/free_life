@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:free_life/providers/auth_provider.dart';
 import 'package:free_life/theme/app_theme.dart';
 import 'package:free_life/widgets/biometric_setup_sheet.dart';
 import 'package:free_life/widgets/button_custom.dart';
 import 'package:free_life/routes/routes.dart';
 import 'package:free_life/widgets/form/email_field.dart';
 import 'package:free_life/widgets/form/password_field.dart';
+import 'package:provider/provider.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
@@ -18,8 +20,6 @@ class _SignInPageState extends State<SignInPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLoading = false;
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -30,21 +30,25 @@ class _SignInPageState extends State<SignInPage> {
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-
-    // TODO: implementar autenticação
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() => _isLoading = false);
-
-    // Pergunta se quer ativar biometria
-    if (!mounted) return;
-    await BiometricSetupSheet.show(context);
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signIn(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
 
     if (!mounted) return;
-    Navigator.of(
-      context,
-    ).pushNamedAndRemoveUntil(Routes.initial, (route) => false);
+
+    if (success) {
+      await BiometricSetupSheet.show(context);
+      if (!mounted) return;
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(Routes.initial, (route) => false);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.errorMessage ?? 'Erro ao fazer login.')),
+      );
+    }
   }
 
   @override
@@ -120,9 +124,11 @@ class _SignInPageState extends State<SignInPage> {
                   const SizedBox(height: 24),
 
                   // Botão entrar
-                  _isLoading
-                      ? const CircularProgressIndicator()
-                      : CustomButton(onPressed: _signIn, text: 'Entrar'),
+                  Consumer<AuthProvider>(
+                    builder: (context, auth, _) => auth.isLoading
+                        ? const CircularProgressIndicator()
+                        : CustomButton(onPressed: _signIn, text: 'Entrar'),
+                  ),
                   const SizedBox(height: 16),
 
                   // Cadastro

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:free_life/providers/auth_provider.dart';
+import 'package:free_life/routes/routes.dart';
 import 'package:free_life/theme/app_theme.dart';
 import 'package:free_life/widgets/button_custom.dart';
 import 'package:free_life/widgets/form/email_field.dart';
 import 'package:free_life/widgets/form/password_field.dart';
 import 'package:free_life/widgets/form/document_field.dart';
 import 'package:free_life/widgets/form/text_field.dart';
+import 'package:provider/provider.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -21,8 +24,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final _documentController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passwordConfirmationController = TextEditingController();
-  bool _isLoading = false;
-
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -37,12 +38,27 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signUp(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      email: _emailController.text.trim(),
+      document: _documentController.text,
+      password: _passwordController.text,
+      passwordConfirmation: _passwordConfirmationController.text,
+    );
 
-    // TODO: implementar cadastro
-    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
 
-    setState(() => _isLoading = false);
+    if (success) {
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(Routes.initial, (route) => false);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.errorMessage ?? 'Erro ao criar conta.')),
+      );
+    }
   }
 
   @override
@@ -132,9 +148,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   const SizedBox(height: 32),
 
                   // Botão cadastrar
-                  _isLoading
-                      ? const CircularProgressIndicator()
-                      : CustomButton(onPressed: _signUp, text: 'Cadastrar'),
+                  Consumer<AuthProvider>(
+                    builder: (context, auth, _) => auth.isLoading
+                        ? const CircularProgressIndicator()
+                        : CustomButton(onPressed: _signUp, text: 'Cadastrar'),
+                  ),
                   const SizedBox(height: 16),
 
                   // Já tem conta
