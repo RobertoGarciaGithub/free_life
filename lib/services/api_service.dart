@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:free_life/config/app_config.dart';
 import 'package:free_life/services/preferences_service.dart';
 
 class ApiService {
-  static const _baseUrl =
-      'https://sua-api.com/api/v1'; // 🔧 altere para sua URL
+  static const _baseUrl = AppConfig.apiBaseUrl;
 
   final Dio _dio;
   final PreferencesService _prefs;
@@ -17,8 +17,8 @@ class ApiService {
 
   static BaseOptions _baseOptions() => BaseOptions(
     baseUrl: _baseUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
+    connectTimeout: const Duration(milliseconds: AppConfig.apiTimeout),
+    receiveTimeout: const Duration(milliseconds: AppConfig.apiTimeout),
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
   );
 
