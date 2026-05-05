@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:free_life/pages/accounts/accounts_page.dart';
 import 'package:free_life/pages/home_page.dart';
 import 'package:free_life/widgets/auth_check.dart';
 
@@ -14,6 +15,7 @@ class Routes {
         '/sign-in': (_) => const SignInPage(),
         '/sign-up': (_) => const SignUpPage(),
         '/forgot-password': (_) => const ForgotPasswordPage(),
+        '/accounts': (_) => const AccountsPage(),
       };
 
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -23,6 +25,7 @@ class Routes {
   static String signIn = '/sign-in';
   static String signUp = '/sign-up';
   static String forgotPassword = '/forgot-password';
+  static String accounts = '/accounts';
 
   static NavigatorState to = Routes.navigatorKey.currentState!;
 }

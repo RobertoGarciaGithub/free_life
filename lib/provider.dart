@@ -1,4 +1,6 @@
+import 'package:free_life/providers/account_provider.dart';
 import 'package:free_life/providers/auth_provider.dart';
+import 'package:free_life/repositories/account_repository.dart';
 import 'package:free_life/repositories/auth_repository.dart';
 import 'package:free_life/services/api_service.dart';
 import 'package:free_life/services/local_auth_service.dart';
@@ -22,6 +24,10 @@ Future<List<SingleChildWidget>> createProviders() async {
     Provider<AuthRepository>(create: (_) => AuthRepository(api)),
     ChangeNotifierProvider<AuthProvider>(
       create: (_) => AuthProvider(AuthRepository(api), prefs),
+    ),
+    Provider<AccountRepository>(create: (_) => AccountRepository(api)),
+    ChangeNotifierProvider<AccountProvider>(
+      create: (_) => AccountProvider(AccountRepository(api)),
     ),
   ];
 }
