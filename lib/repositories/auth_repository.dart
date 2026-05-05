@@ -6,14 +6,24 @@ class AuthRepository {
 
   AuthRepository(this._api);
 
+  // POST /api/v1/auth/login
+  // response: { token: "...", user: { id, email, first_name, last_name } }
   Future<User> signIn({required String email, required String password}) async {
     final response = await _api.client.post(
-      '/auth/sign_in',
-      data: {'email': email, 'password': password},
+      '/auth/login',
+      data: {
+        'user': {'email': email, 'password': password},
+      },
     );
-    return User.fromJson(response.data);
+
+    final user = User.fromJson(response.data['user']);
+    final token = response.data['token'];
+
+    return user.copyWith(token: token);
   }
 
+  // POST /api/v1/auth/register
+  // response: { user: { id, email, first_name, last_name } }
   Future<User> signUp({
     required String firstName,
     required String lastName,
@@ -23,24 +33,24 @@ class AuthRepository {
     required String passwordConfirmation,
   }) async {
     final response = await _api.client.post(
-      '/auth/sign_up',
+      '/auth/register',
       data: {
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'document': document,
-        'password': password,
-        'password_confirmation': passwordConfirmation,
+        'user': {
+          'first_name': firstName,
+          'last_name': lastName,
+          'email': email,
+          'document': document,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
       },
     );
-    return User.fromJson(response.data);
+
+    return User.fromJson(response.data['user']);
   }
 
+  // DELETE /api/v1/auth/logout
   Future<void> signOut() async {
-    await _api.client.delete('/auth/sign_out');
-  }
-
-  Future<void> forgotPassword({required String email}) async {
-    await _api.client.post('/auth/forgot_password', data: {'email': email});
+    await _api.client.delete('/auth/logout');
   }
 }

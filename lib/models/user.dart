@@ -3,7 +3,7 @@ class User {
   final String firstName;
   final String lastName;
   final String email;
-  final String document;
+  final String? document;
   final String? token;
 
   User({
@@ -11,7 +11,7 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.email,
-    required this.document,
+    this.document,
     this.token,
   });
 
@@ -31,6 +31,15 @@ class User {
     'email': email,
     'document': document,
   };
+
+  User copyWith({String? token}) => User(
+    id: id,
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    document: document,
+    token: token ?? this.token,
+  );
 
   String get fullName => '$firstName $lastName';
 }

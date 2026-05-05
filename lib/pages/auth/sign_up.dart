@@ -51,9 +51,15 @@ class _SignUpPageState extends State<SignUpPage> {
     if (!mounted) return;
 
     if (success) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conta criada! Faça login para continuar.'),
+        ),
+      );
       Navigator.of(
         context,
-      ).pushNamedAndRemoveUntil(Routes.initial, (route) => false);
+      ).pushNamedAndRemoveUntil(Routes.signIn, (route) => false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.errorMessage ?? 'Erro ao criar conta.')),

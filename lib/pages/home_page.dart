@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:free_life/widgets/button_custom.dart';
-import 'package:free_life/routes/routes.dart';
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -30,11 +27,6 @@ class _HomePageState extends State<HomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 24),
-            CustomButton(
-              onPressed: () => Navigator.pushNamed(context, Routes.accounts),
-              text: 'Contas',
             ),
           ],
         ),

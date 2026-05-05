@@ -94,12 +94,6 @@ class _AccountsPageState extends State<AccountsPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: navegar para criar conta
-        },
-        child: const Icon(Icons.add),
-      ),
     );
   }
 

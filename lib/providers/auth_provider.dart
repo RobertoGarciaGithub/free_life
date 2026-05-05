@@ -60,10 +60,7 @@ class AuthProvider extends ChangeNotifier {
         passwordConfirmation: passwordConfirmation,
       );
 
-      if (_user?.token != null) {
-        await _prefs.setToken(_user!.token!);
-      }
-
+      // sign_up do Devise não retorna token, precisa fazer login depois
       _setState(AuthState.success);
       return true;
     } catch (e) {
@@ -83,20 +80,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> forgotPassword({required String email}) async {
-    _setState(AuthState.loading);
-
-    try {
-      await _repository.forgotPassword(email: email);
-      _setState(AuthState.success);
-      return true;
-    } catch (e) {
-      _errorMessage = _parseError(e);
-      _setState(AuthState.error);
-      return false;
-    }
-  }
-
   void resetState() {
     _errorMessage = null;
     _setState(AuthState.idle);
@@ -108,12 +91,21 @@ class AuthProvider extends ChangeNotifier {
   }
 
   String _parseError(dynamic error) {
-    if (error is Exception) {
-      final message = error.toString();
-      if (message.contains('401')) return 'E-mail ou senha incorretos.';
-      if (message.contains('422'))
-        return 'Dados inválidos. Verifique os campos.';
-      if (message.contains('connection')) return 'Sem conexão com a internet.';
+    try {
+      // Tenta pegar erros do Devise: { errors: ["Email já foi utilizado"] }
+      final data = (error as dynamic).response?.data;
+      if (data != null) {
+        if (data['errors'] is List) {
+          return (data['errors'] as List).join('\n');
+        }
+        if (data['error'] is String) return data['error'];
+      }
+      final status = (error as dynamic).response?.statusCode;
+      if (status == 401) return 'E-mail ou senha incorretos.';
+      if (status == 422) return 'Dados inválidos. Verifique os campos.';
+    } catch (_) {}
+    if (error.toString().contains('connection')) {
+      return 'Sem conexão com a internet.';
     }
     return 'Algo deu errado. Tente novamente.';
   }
